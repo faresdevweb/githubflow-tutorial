@@ -15,4 +15,12 @@ export class TaskService {
       },
     });
   }
+
+  async getTasks(userId: string) {
+    return this.prisma.task.findMany({
+      where: {
+        userId,
+      },
+    });
+  }
 }

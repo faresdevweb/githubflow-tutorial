@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { registerDTO } from './dto';
+import { loginDTO, registerDTO } from './dto';
 import * as argon from 'argon2';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 
@@ -35,6 +35,26 @@ export class AuthService {
         }
       }
       throw new Error(error);
+    }
+  }
+
+  async login(loginDTO: loginDTO) {
+    const { email, password } = loginDTO;
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: {
+          email: email,
+        },
+      });
+      const validPassword = await argon.verify(user.hashedPassword, password);
+      if (!validPassword) throw new BadRequestException('Invalid password');
+      return this.signToken(user.id, user.email);
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === 'P2025') {
+          throw new BadRequestException('Invalid email');
+        }
+      }
     }
   }
 

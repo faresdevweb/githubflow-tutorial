@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { createTaskDTO } from './dto';
+import { createTaskDTO, updateTaskDTO } from './dto';
 
 @Injectable()
 export class TaskService {
@@ -20,6 +20,18 @@ export class TaskService {
     return this.prisma.task.findMany({
       where: {
         userId,
+      },
+    });
+  }
+
+  async updateTask(taskId: string, updateTaskDTO: updateTaskDTO) {
+    const { newTitle } = updateTaskDTO;
+    return this.prisma.task.update({
+      where: {
+        id: taskId,
+      },
+      data: {
+        title: newTitle,
       },
     });
   }

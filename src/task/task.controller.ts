@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, Post, Put, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  Req,
+} from '@nestjs/common';
 import { TaskService } from './task.service';
 import { UseGuards } from '@nestjs/common';
 import { JwtGuard } from 'src/auth/guard';
@@ -28,5 +37,11 @@ export class TaskController {
     @Body() updateTaskDTO: updateTaskDTO,
   ) {
     return this.taskService.updateTask(taskId, updateTaskDTO);
+  }
+
+  @UseGuards(JwtGuard)
+  @Delete('/deleteTask/:taskId')
+  async deleteTask(@Param('taskId') taskId: string) {
+    return this.taskService.deleteTask(taskId);
   }
 }
